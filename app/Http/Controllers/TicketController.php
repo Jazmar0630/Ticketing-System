@@ -16,9 +16,9 @@ class TicketController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title'       => 'required|string|max:255',
             'description' => 'required|string',
-            'category' => 'required|in:technical,arrangement,general',
+            'category'    => 'required|in:technical,arrangement,general',
         ]);
         Ticket::create($request->only('title', 'description', 'category'));
         return redirect()->route('home')->with('success', 'Ticket created!');
@@ -60,5 +60,27 @@ class TicketController extends Controller
         $request->validate(['status' => 'required|in:open,in_progress,resolved,closed']);
         $ticket->update(['status' => $request->status]);
         return back()->with('success', 'Status updated!');
+    }
+
+    public function updateTechnical(Request $request, Ticket $ticket)
+    {
+        $request->validate([
+            'accepted_by'   => 'required|string|max:255',
+            'date_accepted' => 'required|date',
+            'time_accepted' => 'required',
+        ]);
+        $ticket->update($request->only('accepted_by', 'date_accepted', 'time_accepted'));
+        return back()->with('success', 'Technical info updated!');
+    }
+
+    public function updateArrangement(Request $request, Ticket $ticket)
+    {
+        $request->validate([
+            'followup_by'   => 'required|string|max:255',
+            'division'      => 'required|in:servicing,installation',
+            'date_followup' => 'required|date',
+        ]);
+        $ticket->update($request->only('followup_by', 'division', 'date_followup'));
+        return back()->with('success', 'Arrangement info updated!');
     }
 }

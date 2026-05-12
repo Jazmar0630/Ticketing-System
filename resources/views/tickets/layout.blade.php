@@ -4,48 +4,87 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ticketing System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; margin: 0; background: #f5f5f5; }
-        nav { background: #1b1b18; padding: 12px 24px; display: flex; gap: 20px; }
-        nav a { color: #fff; text-decoration: none; font-size: 14px; }
-        nav a:hover { color: #f53003; }
-        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
-        .card { background: #fff; border-radius: 8px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
-        .badge-open { background: #dbeafe; color: #1d4ed8; }
-        .badge-in_progress { background: #fef9c3; color: #854d0e; }
-        .badge-resolved { background: #dcfce7; color: #166534; }
-        .badge-closed { background: #f3f4f6; color: #374151; }
-        .badge-technical { background: #ede9fe; color: #5b21b6; }
-        .badge-arrangement { background: #fce7f3; color: #9d174d; }
-        .badge-general { background: #e0f2fe; color: #0369a1; }
-        input, textarea, select, button { width: 100%; padding: 8px; margin-top: 6px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
-        button { background: #1b1b18; color: #fff; cursor: pointer; border: none; margin-top: 12px; }
-        button:hover { background: #f53003; }
-        .alert { background: #dcfce7; color: #166534; padding: 10px 16px; border-radius: 6px; margin-bottom: 16px; }
-        label { font-size: 13px; font-weight: 600; color: #374151; }
+        body { background:#f0f2f5; }
+        .navbar { background:#1b1b18 !important; }
+        .navbar-brand { color:#fff !important; font-weight:700; }
+        .drawer { position:fixed; top:0; left:-280px; width:280px; height:100vh; background:#1b1b18; z-index:1050; transition:left 0.3s; display:flex; flex-direction:column; }
+        .drawer.open { left:0; }
+        .drawer-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1040; display:none; }
+        .drawer-overlay.show { display:block; }
+        .drawer .brand { color:#fff; font-size:18px; font-weight:700; }
+        .drawer a { color:#aaa; text-decoration:none; padding:12px 20px; display:block; font-size:14px; transition:all .2s; }
+        .drawer a:hover, .drawer a.active { background:#f53003; color:#fff; }
+        .drawer .user-box { margin-top:auto; padding:16px 20px; border-top:1px solid #333; }
+        .drawer .user-box .name { color:#fff; font-size:14px; font-weight:600; }
+        .drawer .user-box .occ { color:#aaa; font-size:12px; text-transform:capitalize; }
+        .drawer .logout-btn { background:none; border:none; color:#f53003; font-size:13px; padding:0; cursor:pointer; margin-top:8px; }
+        .main { padding:30px; margin-top:56px; }
+        .page-title { font-size:20px; font-weight:700; margin-bottom:20px; color:#1b1b18; }
+        .card { border:none; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.07); }
     </style>
 </head>
 <body>
-<nav>
-    <a href="{{ route('home') }}">🏠 Home</a>
-    <a href="{{ route('tickets.technical') }}">🔧 Technical</a>
-    <a href="{{ route('tickets.arrangement') }}">📋 Arrangement</a>
-    <a href="{{ route('tickets.status') }}">📊 Status</a>
-    <a href="{{ route('tickets.followup') }}">🔔 Follow Up</a>
-    <span style="margin-left:auto; color:#aaa; font-size:13px">
-        {{ auth()->user()->name }} ({{ str_replace('_', ' ', auth()->user()->occupation) }})
-    </span>
-    <form method="POST" action="{{ route('logout') }}" style="margin:0">
-        @csrf
-        <button type="submit" style="background:transparent; color:#f53003; border:none; cursor:pointer; font-size:13px; padding:0; width:auto; margin:0">Logout</button>
-    </form>
+<nav class="navbar navbar-dark fixed-top">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" onclick="toggleDrawer()">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <span class="navbar-brand">🎫 TicketSys</span>
+        <span class="navbar-text" style="color:#f53003; font-weight:600;">{{ auth()->user()->name }}</span>
+    </div>
 </nav>
-<div class="container">
+
+<div class="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+    <div class="d-flex justify-content-between align-items-center p-3 border-bottom border-secondary">
+        <div class="brand mb-0">🎫 TicketSys</div>
+        <button class="btn btn-sm text-white" onclick="closeDrawer()">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    <a href="{{ route('home') }}" class="{{ request()->is('/') ? 'active' : '' }}"><i class="bi bi-house-door me-2"></i>Home</a>
+    <a href="{{ route('tickets.technical') }}" class="{{ request()->is('technical') ? 'active' : '' }}"><i class="bi bi-tools me-2"></i>Technical</a>
+    <a href="{{ route('tickets.arrangement') }}" class="{{ request()->is('arrangement') ? 'active' : '' }}"><i class="bi bi-clipboard-check me-2"></i>Arrangement</a>
+    <a href="{{ route('tickets.status') }}" class="{{ request()->is('status') ? 'active' : '' }}"><i class="bi bi-bar-chart-line me-2"></i>Status</a>
+    <a href="{{ route('tickets.followup') }}" class="{{ request()->is('followup') ? 'active' : '' }}"><i class="bi bi-bell me-2"></i>Follow Up</a>
+    <div class="user-box">
+        <div class="name"><i class="bi bi-person-circle me-1"></i>{{ auth()->user()->name }}</div>
+        <div class="occ">{{ str_replace('_',' ', auth()->user()->occupation) }}</div>
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="logout-btn"><i class="bi bi-box-arrow-left me-1"></i>Logout</button>
+        </form>
+    </div>
+</div>
+
+<div class="main">
     @if(session('success'))
-        <div class="alert">{{ session('success') }}</div>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
     @endif
     @yield('content')
 </div>
+
+<script>
+function toggleDrawer() {
+    const drawer = document.getElementById('drawer');
+    const overlay = document.querySelector('.drawer-overlay');
+    drawer.classList.toggle('open');
+    overlay.classList.toggle('show');
+}
+
+function closeDrawer() {
+    const drawer = document.getElementById('drawer');
+    const overlay = document.querySelector('.drawer-overlay');
+    drawer.classList.remove('open');
+    overlay.classList.remove('show');
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
