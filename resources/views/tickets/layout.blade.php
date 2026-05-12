@@ -32,7 +32,7 @@
         <button class="navbar-toggler" type="button" onclick="toggleDrawer()">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <span class="navbar-brand">🎫 TicketSys</span>
+        <span class="navbar-brand">🎫 Tickstem</span>
         <span class="navbar-text" style="color:#f53003; font-weight:600;">{{ auth()->user()->name }}</span>
     </div>
 </nav>
@@ -40,7 +40,7 @@
 <div class="drawer-overlay" onclick="closeDrawer()"></div>
 <div class="drawer" id="drawer">
     <div class="d-flex justify-content-between align-items-center p-3 border-bottom border-secondary">
-        <div class="brand mb-0">🎫 TicketSys</div>
+        <div class="brand mb-0">🎫 Tickstem</div>
         <button class="btn btn-sm text-white" onclick="closeDrawer()">
             <i class="bi bi-x-lg"></i>
         </button>
